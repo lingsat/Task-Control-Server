@@ -22,7 +22,8 @@ const authMiddleware = (req, res, next) => {
     const tokenPayload = jwt.verify(token, process.env.SECRET_KEY);
     req.user = {
       userId: tokenPayload.userId,
-      username: tokenPayload.username,
+      email: tokenPayload.email,
+      role: tokenPayload.role,
     };
     next();
   } catch (error) {
