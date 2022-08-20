@@ -14,7 +14,7 @@ const truckSchema = mongoose.Schema({
   },
   status: {
     type: String,
-    default: '',
+    default: 'IS',
   },
   created_date: {
     type: Date,
