@@ -9,6 +9,7 @@ const bodyParser = require('body-parser');
 const { userRouter } = require('./src/routers/userRouter');
 const { userProfileRouter } = require('./src/routers/userProfileRouter');
 const { truckRouter } = require('./src/routers/truckRouter');
+const { loadRouter } = require('./src/routers/loadRouter');
 
 // create app server and port
 const app = express();
@@ -41,6 +42,7 @@ app.use((req, res, next) => {
 app.use('/api/auth', userRouter);
 app.use('/api/users', userProfileRouter);
 app.use('/api/trucks', truckRouter);
+app.use('/api/loads', loadRouter);
 
 app.listen(PORT);
 

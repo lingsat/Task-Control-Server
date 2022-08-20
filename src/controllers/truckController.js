@@ -1,6 +1,3 @@
-// const bcrypt = require('bcryptjs');
-// const jwt = require('jsonwebtoken');
-require('dotenv').config();
 const { Truck } = require('../models/Truck');
 
 // add truck for driver
@@ -78,7 +75,7 @@ const deleteTruck = async (req, res) => {
 };
 
 // get truck by id
-const getTruckById = async (req, res) => {
+const getTruckById = (req, res) => {
   const truckId = req.params.id;
   const { userId, role } = req.user;
   if (role === 'DRIVER') {
