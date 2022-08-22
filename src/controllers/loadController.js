@@ -42,31 +42,6 @@ const addLoad = async (req, res) => {
 };
 
 // get loads
-// const getLoads = (req, res) => {
-//   const { userId, role } = req.user;
-//   if (role === 'SHIPPER') {
-//     Load.find({ created_by: userId }).then((list) => {
-//       if (list.length > 0) {
-//         res.status(200).json({ loads: list });
-//       } else {
-//         res
-//           .status(200)
-//           .json({ message: 'No loads created by current SHIPPER' });
-//       }
-//     });
-//   }
-//   if (role === 'DRIVER') {
-//     Load.find({ assigned_to: userId }).then((list) => {
-//       if (list.length > 0) {
-//         res.status(200).json({ loads: list });
-//       } else {
-//         res
-//           .status(200)
-//           .json({ message: 'No loads created by current DRIVER' });
-//       }
-//     });
-//   }
-// };
 const getLoads = (req, res) => {
   const { userId, role } = req.user;
   if (role === 'SHIPPER') {
@@ -79,7 +54,8 @@ const getLoads = (req, res) => {
           .json({ message: 'No loads created by current SHIPPER' });
       }
     });
-  } else if (role === 'DRIVER') {
+  }
+  if (role === 'DRIVER') {
     Load.find({ assigned_to: userId }).then((list) => {
       if (list.length > 0) {
         res.status(200).json({ loads: list });
@@ -89,8 +65,6 @@ const getLoads = (req, res) => {
           .json({ message: 'No loads created by current DRIVER' });
       }
     });
-  } else {
-    res.status(200).json({ message: 'Bot Fix' });
   }
 };
 
