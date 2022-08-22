@@ -42,29 +42,25 @@ const addLoad = async (req, res) => {
 };
 
 // get loads
-const getLoads = (req, res) => {
+const getLoads = async (req, res) => {
   const { userId, role } = req.user;
   if (role === 'SHIPPER') {
-    Load.find({ created_by: userId }).then((list) => {
-      if (list.length > 0) {
-        res.status(200).json({ loads: list });
-      } else {
-        res
-          .status(200)
-          .json({ message: 'No loads created by current SHIPPER' });
-      }
-    });
-  }
-  if (role === 'DRIVER') {
-    Load.find({ assigned_to: userId }).then((list) => {
-      if (list.length > 0) {
-        res.status(200).json({ loads: list });
-      } else {
-        res
-          .status(200)
-          .json({ message: 'No loads created by current DRIVER' });
-      }
-    });
+    const shipperLoads = await Load.find({ created_by: userId });
+    if (shipperLoads.length > 0) {
+      res.status(200).json({ loads: shipperLoads });
+    } else {
+      res.status(200).json({ message: 'Loads not found!' });
+    }
+  } else if (role === 'DRIVER') {
+    const assignedTruck = await Truck.findOne({ assigned_to: userId });
+    const driverLoads = await Load.find({ assigned_to: assignedTruck._id });
+    if (driverLoads.length > 0) {
+      res.status(200).json({ loads: driverLoads });
+    } else {
+      res.status(200).json({ message: 'Loads not found!' });
+    }
+  } else {
+    res.status(400).json({ message: 'Error' });
   }
 };
 
