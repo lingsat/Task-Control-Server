@@ -4,11 +4,12 @@ const {
   loginUser,
   forgotUserPass,
 } = require('../controllers/userController');
+const { asyncWrapper } = require('../servise/serviseFunctions');
 
 const router = express.Router();
 
-router.post('/register', registerUser);
-router.post('/login', loginUser);
-router.post('/forgot_password', forgotUserPass);
+router.post('/register', asyncWrapper(registerUser));
+router.post('/login', asyncWrapper(loginUser));
+router.post('/forgot_password', asyncWrapper(forgotUserPass));
 
 module.exports = { userRouter: router };

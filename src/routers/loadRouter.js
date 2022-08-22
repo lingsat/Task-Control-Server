@@ -11,10 +11,11 @@ const {
   postLoad,
   getLoadShippingById,
 } = require('../controllers/loadController');
+const { asyncWrapper } = require('../servise/serviseFunctions');
 
 const router = express.Router();
 
-router.post('/', authMiddleware, addLoad);
+router.post('/', authMiddleware, asyncWrapper(addLoad));
 router.get('/', authMiddleware, getLoads);
 router.get('/active', authMiddleware, getActiveLoad);
 router.patch('/active/state', authMiddleware, iterateLoadState);

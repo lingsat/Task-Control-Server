@@ -1,13 +1,19 @@
-const { Truck } = require('../models/Truck');
+const { Truck, truckJoiSchema } = require('../models/Truck');
+const { getTruckPayload, getTruckDimansions } = require('../servise/serviseFunctions');
 
 // add truck for driver
-const addTruck = (req, res) => {
+const addTruck = async (req, res) => {
   const { userId, role } = req.user;
   const { type } = req.body;
+  // joi data validation
+  await truckJoiSchema.validateAsync({ type });
+
   if (role === 'DRIVER') {
     const truck = new Truck({
       created_by: userId,
       type,
+      payload: getTruckPayload(type),
+      dimensions: getTruckDimansions(type),
     });
     truck.save().then(() => {
       res.status(200).json({ message: 'Truck created successfully' });
@@ -99,10 +105,14 @@ const getTruckById = (req, res) => {
 const updateTruck = async (req, res) => {
   const truckId = req.params.id;
   const { userId, role } = req.user;
+  const { type } = req.body;
+  // joi data validation
+  await truckJoiSchema.validateAsync({ type });
+
   const truck = await Truck.findOne({ created_by: userId, _id: truckId });
   if (truck && role === 'DRIVER') {
     if (userId !== truck.assigned_to) {
-      truck.type = req.body.type;
+      truck.type = type;
       truck.save();
       res.status(200).json({ message: 'Truck details changed successfully' });
     } else {

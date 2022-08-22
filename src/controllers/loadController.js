@@ -1,12 +1,12 @@
 /* eslint-disable no-underscore-dangle */
 /* eslint-disable camelcase */
-const { Load } = require('../models/Load');
+const { Load, loadJoiSchema } = require('../models/Load');
 const { Truck } = require('../models/Truck');
 
 const loadStateArr = ['En route to Pick Up', 'Arrived to Pick Up', 'En route to delivery', 'Arrived to delivery'];
 
 // add load for shipper
-const addLoad = (req, res) => {
+const addLoad = async (req, res) => {
   const { userId, role } = req.user;
   const {
     name,
@@ -15,6 +15,15 @@ const addLoad = (req, res) => {
     delivery_address,
     dimensions,
   } = req.body;
+  // joi data validation
+  await loadJoiSchema.validateAsync({
+    name,
+    payload,
+    pickup_address,
+    delivery_address,
+    dimensions,
+  });
+
   if (role === 'SHIPPER') {
     const newLoad = new Load({
       created_by: userId,
@@ -174,31 +183,53 @@ const deleteLoad = (req, res) => {
   }
 };
 
-// post load by id
+// post load
 const postLoad = async (req, res) => {
   const loadId = req.params.id;
   const { userId, role } = req.user;
   if (role === 'SHIPPER') {
     const load = await Load.findOne({ created_by: userId, _id: loadId });
-    // hardcoded filter
-    const awailableTrucks = await Truck.find({ type: 'SPRINTER' });
-
-    if (awailableTrucks.length > 0) {
-      const neededTruck = awailableTrucks.find((truck) => truck.assigned_to !== '');
-      if (neededTruck) {
-        neededTruck.status = 'OL';
-        neededTruck.save();
-        load.assigned_to = neededTruck._id;
-        load.status = 'ASSIGNED';
-        load.logs = [...load.logs, {
-          message: 'Load assigned',
-          time: new Date().toISOString(),
-        }];
-        load.save();
-        res.status(200).json({ message: 'Load posted successfully', driver_found: true });
-      }
+    const awailableTrucks = await Truck.aggregate([
+      {
+        $match: {
+          status: 'IS',
+          assigned_to: {
+            $nin: [null],
+          },
+          payload: {
+            $gte: load.payload,
+          },
+          'dimensions.width': {
+            $gte: load.dimensions.width,
+          },
+          'dimensions.height': {
+            $gte: load.dimensions.height,
+          },
+          'dimensions.length': {
+            $gte: load.dimensions.length,
+          },
+        },
+      },
+      {
+        $sort: {
+          payload: 1,
+        },
+      },
+      { $limit: 1 },
+    ]);
+    const suitableTruck = awailableTrucks[0];
+    if (suitableTruck) {
+      await Truck.findByIdAndUpdate(suitableTruck._id, { $set: { status: 'OL' } });
+      load.assigned_to = suitableTruck._id;
+      load.status = 'ASSIGNED';
+      load.logs = [...load.logs, {
+        message: 'Load assigned',
+        time: new Date().toISOString(),
+      }];
+      load.save();
+      res.status(200).json({ message: 'Load posted successfully', driver_found: true });
     } else {
-      res.status(400).json({ message: 'Trucks not found' });
+      res.status(400).json({ message: 'Suitable Truck not found. Try again later!' });
     }
   } else {
     res

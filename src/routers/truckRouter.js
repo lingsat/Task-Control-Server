@@ -8,14 +8,15 @@ const {
   getTruckById,
   updateTruck,
 } = require('../controllers/truckController');
+const { asyncWrapper } = require('../servise/serviseFunctions');
 
 const router = express.Router();
 
-router.post('/', authMiddleware, addTruck);
+router.post('/', authMiddleware, asyncWrapper(addTruck));
 router.get('/', authMiddleware, getTrucks);
 router.post('/:id/assign', authMiddleware, assignTruck);
 router.delete('/:id', authMiddleware, deleteTruck);
 router.get('/:id', authMiddleware, getTruckById);
-router.put('/:id', authMiddleware, updateTruck);
+router.put('/:id', authMiddleware, asyncWrapper(updateTruck));
 
 module.exports = { truckRouter: router };

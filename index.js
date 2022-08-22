@@ -47,8 +47,9 @@ app.use('/api/loads', loadRouter);
 app.listen(PORT);
 
 // error Handler
-function errorHandler(err, req, res) {
-  console.error(err);
-  res.status(500).send({ message: 'Server error' });
+function errorHandler(err, req, res, next) {
+  // console.error(err);
+  res.status(500).send({ message: err.message });
+  next();
 }
 app.use(errorHandler);

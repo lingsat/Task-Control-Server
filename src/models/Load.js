@@ -1,4 +1,17 @@
 const mongoose = require('mongoose');
+const Joi = require('joi');
+
+const loadJoiSchema = Joi.object({
+  name: Joi.string().min(3).required(),
+  payload: Joi.number().integer().min(10).required(),
+  pickup_address: Joi.string().min(10),
+  delivery_address: Joi.string().min(10),
+  dimensions: {
+    width: Joi.number().integer().required(),
+    length: Joi.number().integer().required(),
+    height: Joi.number().integer().required(),
+  },
+});
 
 const loadSchema = mongoose.Schema({
   created_by: {
@@ -7,7 +20,7 @@ const loadSchema = mongoose.Schema({
   },
   assigned_to: {
     type: String,
-    default: '',
+    default: null,
   },
   status: {
     type: String,
@@ -62,4 +75,4 @@ const loadSchema = mongoose.Schema({
 
 const Load = mongoose.model('load', loadSchema);
 
-module.exports = { Load };
+module.exports = { Load, loadJoiSchema };

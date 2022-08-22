@@ -1,11 +1,14 @@
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 require('dotenv').config();
-const { User } = require('../models/User');
+const { User, userJoiSchema } = require('../models/User');
 
 // registration
-const registerUser = async (req, res) => {
+const registerUser = async (req, res, next) => {
   const { email, password, role } = req.body;
+  // joi data validation
+  await userJoiSchema.validateAsync({ email, password, role });
+
   const user = new User({
     email,
     password: await bcrypt.hash(password, 10),
@@ -16,16 +19,20 @@ const registerUser = async (req, res) => {
     .then(() => {
       res.status(200).json({ message: 'Profile created successfully' });
     })
-    .catch(() => {
-      res.status(400).json({ message: 'Something went wrong' });
+    .catch((err) => {
+      next(err);
     });
 };
 
 // login
 const loginUser = async (req, res) => {
-  const user = await User.findOne({ email: req.body.email });
+  const { email, password } = req.body;
+  // joi data validation
+  await userJoiSchema.validateAsync({ email, password });
+
+  const user = await User.findOne({ email });
   const isPassCorrect = await bcrypt.compare(
-    String(req.body.password),
+    String(password),
     String(user.password),
   );
   if (user && isPassCorrect) {
@@ -38,7 +45,11 @@ const loginUser = async (req, res) => {
 
 // forgot password - sending new password to email
 const forgotUserPass = async (req, res) => {
-  const user = await User.findOne({ email: req.body.email });
+  const { email } = req.body;
+  // joi data validation
+  await userJoiSchema.validateAsync({ email });
+
+  const user = await User.findOne({ email });
   if (user) {
     return res
       .status(200)
