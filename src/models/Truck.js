@@ -19,7 +19,7 @@ const truckSchema = mongoose.Schema({
   },
   status: {
     type: String,
-    default: null,
+    default: 'IS',
   },
   payload: {
     type: Number,

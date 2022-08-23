@@ -50,7 +50,7 @@ const assignTruck = async (req, res) => {
   const truck = await Truck.findOne({ created_by: userId, _id: truckId });
   if (truck && role === 'DRIVER') {
     truck.assigned_to = userId;
-    truck.status = 'IS';
+    // truck.status = 'IS';
     truck.save();
     res.status(200).json({ message: 'Truck assigned successfully' });
   } else {
