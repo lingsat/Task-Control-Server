@@ -28,7 +28,7 @@ const loadSchema = mongoose.Schema({
   },
   state: {
     type: String,
-    default: 'En route to Pick Up',
+    default: null,
   },
   name: {
     type: String,

@@ -53,6 +53,12 @@ const forgotUserPass = async (req, res) => {
   const user = await User.findOne({ email });
   if (user) {
     // send mail with new password
+    // mailTransporter.sendMail({
+    //   from: 'serhiiptest@gmail.com',
+    //   subject: 'New Password from Freight Delivery',
+    //   to: email,
+    //   text: 'New pass is: "pswd"',
+    // });
     return res
       .status(200)
       .json({ message: 'New password sent to your email address' });

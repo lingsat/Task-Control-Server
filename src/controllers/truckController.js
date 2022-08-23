@@ -1,3 +1,5 @@
+/* eslint-disable consistent-return */
+/* eslint-disable no-underscore-dangle */
 const { Truck, truckJoiSchema } = require('../models/Truck');
 const { getTruckPayload, getTruckDimansions } = require('../service/serviseFunctions');
 
@@ -47,18 +49,32 @@ const getTrucks = (req, res) => {
 const assignTruck = async (req, res) => {
   const truckId = req.params.id;
   const { userId, role } = req.user;
+  const assignedTruck = await Truck.findOne({ assigned_to: userId });
   const truck = await Truck.findOne({ created_by: userId, _id: truckId });
-  if (truck && role === 'DRIVER') {
-    truck.assigned_to = userId;
-    // truck.status = 'IS';
-    truck.save();
-    res.status(200).json({ message: 'Truck assigned successfully' });
+  if (!assignedTruck) {
+    if (truck && role === 'DRIVER') {
+      truck.assigned_to = userId;
+      truck.save();
+      res.status(200).json({ message: 'Truck assigned successfully' });
+    } else {
+      res
+        .status(400)
+        .json({
+          message:
+            "SHIPPER don't have access to assign trucks or truck not found!",
+        });
+    }
   } else {
-    res
+    if (truck.assigned_to === userId && truck.status !== 'OL') {
+      truck.assigned_to = null;
+      truck.save();
+      return res.status(200).json({ message: 'Truck disassigned successfully' });
+    }
+    return res
       .status(400)
       .json({
         message:
-          "SHIPPER don't have access to assign trucks or truck not found!",
+          `DRIVER is assigned to truck with id: "${assignedTruck._id}"`,
       });
   }
 };

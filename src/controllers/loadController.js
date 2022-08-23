@@ -83,7 +83,7 @@ const getActiveLoad = async (req, res) => {
 const iterateLoadState = async (req, res) => {
   const { userId, role } = req.user;
   const assignedTruck = await Truck.findOne({ assigned_to: userId });
-  const activeLoad = await Load.findOne({ assigned_to: assignedTruck._id });
+  const activeLoad = await Load.findOne({ assigned_to: assignedTruck._id, status: 'ASSIGNED' });
   if (activeLoad && role === 'DRIVER') {
     const curStateIndex = loadStateArr.indexOf(activeLoad.state);
     if (curStateIndex >= 0 && curStateIndex < 3) {
@@ -93,10 +93,15 @@ const iterateLoadState = async (req, res) => {
         message: `Load state changed to '${newState}'`,
         time: new Date().toISOString(),
       }];
+      if (newState === 'Arrived to delivery') {
+        activeLoad.status = 'SHIPPED';
+        assignedTruck.status = 'IS';
+      }
       activeLoad.save();
+      assignedTruck.save();
       res.status(200).json({ message: `Load state changed to '${newState}'` });
     } else {
-      res.status(200).json({ message: 'Load on the last state!' });
+      res.status(200).json({ message: 'Load SHIPPED!' });
     }
   } else {
     res
@@ -209,6 +214,7 @@ const postLoad = async (req, res) => {
       await Truck.findByIdAndUpdate(suitableTruck._id, { $set: { status: 'OL' } });
       load.assigned_to = suitableTruck._id;
       load.status = 'ASSIGNED';
+      load.state = 'En route to Pick Up';
       load.logs = [...load.logs, {
         message: 'Load assigned',
         time: new Date().toISOString(),
@@ -216,6 +222,11 @@ const postLoad = async (req, res) => {
       load.save();
       res.status(200).json({ message: 'Load posted successfully', driver_found: true });
     } else {
+      load.logs = [...load.logs, {
+        message: 'Suitable truck not found',
+        time: new Date().toISOString(),
+      }];
+      load.save();
       res.status(400).json({ message: 'Suitable Truck not found. Try again later!' });
     }
   } else {

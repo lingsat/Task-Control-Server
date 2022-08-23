@@ -1,11 +1,8 @@
 const nodemailer = require('nodemailer');
-const SMTPTransport = require('nodemailer/lib/smtp-transport');
 
-const mailTransporter = nodemailer.createTransport(new SMTPTransport(
+const mailTransporter = nodemailer.createTransport(
   {
-    host: 'smtp.gmail.com',
-    port: 587,
-    secure: false,
+    service: 'gmail',
     auth: {
       user: 'serhiiptest@gmail.com',
       pass: 'TestLogin02',
@@ -14,10 +11,6 @@ const mailTransporter = nodemailer.createTransport(new SMTPTransport(
       rejectUnauthorized: false,
     },
   },
-  {
-    from: 'serhiiptest@gmail.com',
-    subject: 'New Password from Freight Delivery',
-  },
-));
+);
 
 module.exports = { mailTransporter };
