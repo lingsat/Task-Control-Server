@@ -45,19 +45,21 @@ const addLoad = async (req, res) => {
 const getLoads = async (req, res) => {
   const { userId, role } = req.user;
   if (role === 'SHIPPER') {
-    const shipperLoads = await Load.find({ created_by: userId });
+    const shipperLoads = await Load.aggregate([{ $match: { created_by: userId } }]);
     if (shipperLoads.length > 0) {
       res.status(200).json({ loads: shipperLoads });
     } else {
-      res.status(200).json({ message: 'Loads not found!' });
+      res.status(400).json({ message: 'Loads not found!' });
     }
   } else if (role === 'DRIVER') {
     const assignedTruck = await Truck.findOne({ assigned_to: userId });
-    const driverLoads = await Load.find({ assigned_to: assignedTruck._id });
+    const driverLoads = await Load.aggregate([{
+      $match: { assigned_to: assignedTruck._id.toString() },
+    }]);
     if (driverLoads.length > 0) {
       res.status(200).json({ loads: driverLoads });
     } else {
-      res.status(200).json({ message: 'Loads not found!' });
+      res.status(400).json({ message: 'Load not found!' });
     }
   } else {
     res.status(400).json({ message: 'Error' });
@@ -80,12 +82,17 @@ const getActiveLoad = async (req, res) => {
 // iterate to next Load state
 const iterateLoadState = async (req, res) => {
   const { userId, role } = req.user;
-  const activeLoad = await Load.findOne({ assigned_to: userId });
+  const assignedTruck = await Truck.findOne({ assigned_to: userId });
+  const activeLoad = await Load.findOne({ assigned_to: assignedTruck._id });
   if (activeLoad && role === 'DRIVER') {
     const curStateIndex = loadStateArr.indexOf(activeLoad.state);
     if (curStateIndex >= 0 && curStateIndex < 3) {
       const newState = loadStateArr[curStateIndex + 1];
       activeLoad.state = newState;
+      activeLoad.logs = [...activeLoad.logs, {
+        message: `Load state changed to '${newState}'`,
+        time: new Date().toISOString(),
+      }];
       activeLoad.save();
       res.status(200).json({ message: `Load state changed to '${newState}'` });
     } else {
@@ -113,7 +120,7 @@ const getLoadById = async (req, res) => {
 };
 
 // update user's Load by Id
-const updateLoadById = (req, res) => {
+const updateLoadById = async (req, res) => {
   const loadId = req.params.id;
   const { userId, role } = req.user;
   const {
@@ -123,39 +130,23 @@ const updateLoadById = (req, res) => {
     delivery_address,
     dimensions,
   } = req.body;
-
-  if (role === 'SHIPPER') {
-    Load.findOneAndUpdate(
-      { created_by: userId, _id: loadId },
-      {
-        $set: {
-          name,
-          payload,
-          pickup_address,
-          delivery_address,
-          dimensions,
-          logs: [{
-            message: 'Load updated',
-            time: new Date().toISOString(),
-          }],
-        },
-      },
-    )
-      .then((load) => {
-        if (load) {
-          res.status(200).json({ message: 'Load details changed successfully' });
-        } else {
-          res.status(400).json({ message: 'Load not found or you dont have access to load!' });
-        }
-      })
-      .catch(() => res.status(400).json({
-        message:
-              'Not Found! Or you do not have access to update loads!',
-      }));
+  const load = await Load.findOne({ created_by: userId, _id: loadId });
+  if (load && role === 'SHIPPER') {
+    load.name = name;
+    load.payload = payload;
+    load.pickup_address = pickup_address;
+    load.delivery_address = delivery_address;
+    load.dimensions = dimensions;
+    load.logs = [...load.logs, {
+      message: 'Load updated',
+      time: new Date().toISOString(),
+    }];
+    load.save();
+    res.status(200).json({ message: 'Load details changed successfully' });
   } else {
     res
       .status(400)
-      .json({ message: "DRIVER don't have access to update load!" });
+      .json({ message: "DRIVER don't have access to update load or load not found!" });
   }
 };
 
@@ -192,9 +183,9 @@ const postLoad = async (req, res) => {
           assigned_to: {
             $nin: [null],
           },
-          payload: {
-            $gte: load.payload,
-          },
+          // payload: {
+          //   $gte: load.payload,
+          // },
           'dimensions.width': {
             $gte: load.dimensions.width,
           },

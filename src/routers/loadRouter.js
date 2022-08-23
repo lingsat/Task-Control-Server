@@ -11,7 +11,7 @@ const {
   postLoad,
   getLoadShippingById,
 } = require('../controllers/loadController');
-const { asyncWrapper } = require('../servise/serviseFunctions');
+const { asyncWrapper } = require('../service/serviseFunctions');
 
 const router = express.Router();
 

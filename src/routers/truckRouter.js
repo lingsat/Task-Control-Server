@@ -8,7 +8,7 @@ const {
   getTruckById,
   updateTruck,
 } = require('../controllers/truckController');
-const { asyncWrapper } = require('../servise/serviseFunctions');
+const { asyncWrapper } = require('../service/serviseFunctions');
 
 const router = express.Router();
 

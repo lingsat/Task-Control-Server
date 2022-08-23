@@ -2,6 +2,7 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 require('dotenv').config();
 const { User, userJoiSchema } = require('../models/User');
+// const { mailTransporter } = require('../service/nodemailerService');
 
 // registration
 const registerUser = async (req, res, next) => {
@@ -51,6 +52,7 @@ const forgotUserPass = async (req, res) => {
 
   const user = await User.findOne({ email });
   if (user) {
+    // send mail with new password
     return res
       .status(200)
       .json({ message: 'New password sent to your email address' });

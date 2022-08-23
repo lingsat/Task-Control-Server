@@ -1,5 +1,5 @@
 const { Truck, truckJoiSchema } = require('../models/Truck');
-const { getTruckPayload, getTruckDimansions } = require('../servise/serviseFunctions');
+const { getTruckPayload, getTruckDimansions } = require('../service/serviseFunctions');
 
 // add truck for driver
 const addTruck = async (req, res) => {
@@ -50,6 +50,7 @@ const assignTruck = async (req, res) => {
   const truck = await Truck.findOne({ created_by: userId, _id: truckId });
   if (truck && role === 'DRIVER') {
     truck.assigned_to = userId;
+    truck.status = 'IS';
     truck.save();
     res.status(200).json({ message: 'Truck assigned successfully' });
   } else {

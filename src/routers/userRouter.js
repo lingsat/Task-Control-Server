@@ -4,7 +4,7 @@ const {
   loginUser,
   forgotUserPass,
 } = require('../controllers/userController');
-const { asyncWrapper } = require('../servise/serviseFunctions');
+const { asyncWrapper } = require('../service/serviseFunctions');
 
 const router = express.Router();
 
