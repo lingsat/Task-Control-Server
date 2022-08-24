@@ -69,7 +69,8 @@ const getLoads = async (req, res) => {
 // get driver's active load
 const getActiveLoad = async (req, res) => {
   const { userId, role } = req.user;
-  const activeLoad = await Load.findOne({ assigned_to: userId });
+  const assignedTruck = await Truck.findOne({ assigned_to: userId });
+  const activeLoad = await Load.findOne({ assigned_to: assignedTruck._id });
   if (activeLoad && role === 'DRIVER') {
     res.status(200).json({ load: activeLoad });
   } else {
