@@ -189,9 +189,9 @@ const postLoad = async (req, res) => {
           assigned_to: {
             $nin: [null],
           },
-          // payload: {
-          //   $gte: load.payload,
-          // },
+          payload: {
+            $gte: load.payload,
+          },
           'dimensions.width': {
             $gte: load.dimensions.width,
           },
