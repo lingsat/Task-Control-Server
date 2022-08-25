@@ -86,13 +86,17 @@ const getUserProfile = async (req, res) => {
 
 // change user's password
 const changePass = async (req, res) => {
+  const { oldPassword, newPassword } = req.body;
+  // joi data validation
+  await userJoiSchema.validateAsync({ oldPassword, newPassword });
+
   const user = await User.findById(req.user.userId);
   const isOldPassCorrect = await bcrypt.compare(
-    String(req.body.oldPassword),
+    String(oldPassword),
     String(user.password),
   );
   if (user && isOldPassCorrect) {
-    const newPass = await bcrypt.hash(req.body.newPassword, 10);
+    const newPass = await bcrypt.hash(newPassword, 10);
     user.password = newPass;
     user.save();
     return res.status(200).json({ message: 'Password changed successfully' });
