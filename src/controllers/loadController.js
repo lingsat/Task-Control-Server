@@ -73,11 +73,13 @@ const getLoads = async (req, res) => {
 const getActiveLoad = async (req, res) => {
   const { userId } = req.user;
   const assignedTruck = await Truck.findOne({ assigned_to: userId });
-  const activeLoad = await Load.findOne({ assigned_to: assignedTruck._id, status: 'ASSIGNED' });
-  if (activeLoad) {
-    res.status(200).json({ load: activeLoad });
-  } else {
-    res.status(200).json({ message: 'Active Load not found!' });
+  if (assignedTruck) {
+    const activeLoad = await Load.findOne({ assigned_to: assignedTruck._id, status: 'ASSIGNED' });
+    if (activeLoad) {
+      res.status(200).json({ load: activeLoad });
+    } else {
+      res.status(200).json({ message: 'Active Load not found!' });
+    }
   }
 };
 
