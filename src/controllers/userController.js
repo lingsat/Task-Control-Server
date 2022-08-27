@@ -10,19 +10,24 @@ const registerUser = async (req, res, next) => {
   // joi data validation
   await userJoiSchema.validateAsync({ email, password, role });
 
-  const user = new User({
-    email,
-    password: await bcrypt.hash(password, 10),
-    role,
-  });
-  user
-    .save()
-    .then(() => {
-      res.status(200).json({ message: 'Profile created successfully' });
-    })
-    .catch((err) => {
-      next(err);
+  const isUserExists = await User.exists({ email });
+  if (!isUserExists) {
+    const user = new User({
+      email,
+      password: await bcrypt.hash(password, 10),
+      role,
     });
+    user
+      .save()
+      .then(() => {
+        res.status(200).json({ message: 'Profile created successfully' });
+      })
+      .catch((err) => {
+        next(err);
+      });
+  } else {
+    res.status(400).json({ message: `User with email ${email} already exists!` });
+  }
 };
 
 // login

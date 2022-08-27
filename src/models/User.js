@@ -12,8 +12,8 @@ const userJoiSchema = Joi.object({
 const userSchema = mongoose.Schema({
   email: {
     type: String,
-    unique: true,
     require: true,
+    unique: true,
   },
   role: {
     type: String,
