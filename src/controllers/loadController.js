@@ -45,7 +45,10 @@ const addLoad = async (req, res) => {
 const getLoads = async (req, res) => {
   const { userId, role } = req.user;
   if (role === 'SHIPPER') {
-    const shipperLoads = await Load.aggregate([{ $match: { created_by: userId } }]);
+    const shipperLoads = await Load.aggregate([
+      { $match: { created_by: userId } },
+      { $sort: { status: 1 } },
+    ]);
     if (shipperLoads.length > 0) {
       res.status(200).json({ loads: shipperLoads });
     } else {
@@ -68,15 +71,13 @@ const getLoads = async (req, res) => {
 
 // get driver's active load
 const getActiveLoad = async (req, res) => {
-  const { userId, role } = req.user;
+  const { userId } = req.user;
   const assignedTruck = await Truck.findOne({ assigned_to: userId });
-  const activeLoad = await Load.findOne({ assigned_to: assignedTruck._id });
-  if (activeLoad && role === 'DRIVER') {
+  const activeLoad = await Load.findOne({ assigned_to: assignedTruck._id, status: 'ASSIGNED' });
+  if (activeLoad) {
     res.status(200).json({ load: activeLoad });
   } else {
-    res
-      .status(400)
-      .json({ message: "SHIPPER don't have access to get an active load or active load not found!" });
+    res.status(200).json({ message: 'Active Load not found!' });
   }
 };
 
