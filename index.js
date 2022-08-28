@@ -39,6 +39,8 @@ app.use((req, res, next) => {
 });
 
 // routers
+app.use('/', express.static(__dirname));
+
 app.use('/api/auth', userRouter);
 app.use('/api/users', userProfileRouter);
 app.use('/api/trucks', truckRouter);

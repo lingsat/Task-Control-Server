@@ -86,6 +86,7 @@ const getUserProfile = async (req, res) => {
         role: user.role,
         email: user.email,
         created_date: user.created_date,
+        photo: user.photo,
       },
     });
   }

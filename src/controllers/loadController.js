@@ -52,7 +52,7 @@ const getLoads = async (req, res) => {
     if (shipperLoads.length > 0) {
       res.status(200).json({ loads: shipperLoads });
     } else {
-      res.status(400).json({ message: 'Loads not found!' });
+      res.status(200).json({ message: 'Loads not found!' });
     }
   } else if (role === 'DRIVER') {
     const assignedTruck = await Truck.findOne({ assigned_to: userId });
@@ -62,7 +62,7 @@ const getLoads = async (req, res) => {
     if (driverLoads.length > 0) {
       res.status(200).json({ loads: driverLoads });
     } else {
-      res.status(400).json({ message: 'Load not found!' });
+      res.status(200).json({ message: 'Load not found!' });
     }
   } else {
     res.status(400).json({ message: 'Error' });
