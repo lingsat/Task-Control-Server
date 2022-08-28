@@ -1,8 +1,10 @@
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
+const sendgrid = require('@sendgrid/mail');
 require('dotenv').config();
 const { User, userJoiSchema } = require('../models/User');
-// const { mailTransporter } = require('../service/nodemailerService');
+
+sendgrid.setApiKey(process.env.SENDGRID_API_KEY);
 
 // registration
 const registerUser = async (req, res, next) => {
@@ -57,16 +59,19 @@ const forgotUserPass = async (req, res) => {
 
   const user = await User.findOne({ email });
   if (user) {
-    // send mail with new password
-    // mailTransporter.sendMail({
-    //   from: 'serhiiptest@gmail.com',
-    //   subject: 'New Password from Freight Delivery',
-    //   to: email,
-    //   text: 'New pass is: "pswd"',
-    // });
+  // send email with new password
+    const msg = {
+      to: email,
+      from: 'spetrenkomail@meta.ua',
+      subject: 'New Password for Freight Delivery',
+      text: 'New password for Freight Delivery account is: "pswd".\n\nBest regards, Freight Delivery Team',
+    };
+    sendgrid.send(msg);
+    user.password = await bcrypt.hash('pswd', 10);
+    user.save();
     return res
       .status(200)
-      .json({ message: 'New password sent to your email address' });
+      .json({ message: 'New password sent to your email address! * for testing - new password - "pswd" *' });
   }
   return res.status(400).json({ message: 'User not found!' });
 };
