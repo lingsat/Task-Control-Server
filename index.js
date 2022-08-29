@@ -1,3 +1,4 @@
+const fs = require('fs');
 const express = require('express');
 const cors = require('cors');
 const morgan = require('morgan');
@@ -46,7 +47,18 @@ app.use('/api/users', userProfileRouter);
 app.use('/api/trucks', truckRouter);
 app.use('/api/loads', loadRouter);
 
-app.listen(PORT);
+const start = async () => {
+  try {
+    if (!fs.existsSync('photos')) {
+      fs.mkdirSync('photos');
+    }
+    app.listen(PORT);
+  } catch (err) {
+    console.error(`Error on server startup: ${err.message}`);
+  }
+};
+
+start();
 
 // error Handler
 function errorHandler(err, req, res, next) {
