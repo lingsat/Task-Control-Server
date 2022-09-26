@@ -1,7 +1,7 @@
 /* eslint-disable no-underscore-dangle */
 /* eslint-disable camelcase */
 const { Load, loadJoiSchema } = require('../models/Load');
-const { Truck } = require('../models/Truck');
+const { Truck } = require('../models/Board');
 
 const loadStateArr = ['En route to Pick Up', 'Arrived to Pick Up', 'En route to delivery', 'Arrived to delivery'];
 

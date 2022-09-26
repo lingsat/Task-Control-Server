@@ -23,7 +23,6 @@ const authMiddleware = (req, res, next) => {
     req.user = {
       userId: tokenPayload.userId,
       email: tokenPayload.email,
-      role: tokenPayload.role,
     };
     next();
   } catch (error) {

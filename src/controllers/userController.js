@@ -8,16 +8,15 @@ sendgrid.setApiKey(process.env.SENDGRID_API_KEY);
 
 // registration
 const registerUser = async (req, res, next) => {
-  const { email, password, role } = req.body;
+  const { email, password } = req.body;
   // joi data validation
-  await userJoiSchema.validateAsync({ email, password, role });
+  await userJoiSchema.validateAsync({ email, password });
 
   const isUserExists = await User.exists({ email });
   if (!isUserExists) {
     const user = new User({
       email,
       password: await bcrypt.hash(password, 10),
-      role,
     });
     user
       .save()
@@ -44,9 +43,9 @@ const loginUser = async (req, res) => {
     String(user.password),
   );
   if (user && isPassCorrect) {
-    const payload = { email: user.email, userId: user.id, role: user.role };
+    const payload = { email: user.email, userId: user.id };
     const jwtToken = jwt.sign(payload, process.env.SECRET_KEY);
-    return res.json({ jwt_token: jwtToken });
+    return res.json({ jwt_token: jwtToken, email: user.email, userId: user.id });
   }
   return res.status(400).json({ message: 'Not authorized!' });
 };
@@ -74,25 +73,6 @@ const forgotUserPass = async (req, res) => {
       .json({ message: 'New password sent to your email address! * for testing - new password - "pswd" *' });
   }
   return res.status(400).json({ message: 'User not found!' });
-};
-
-// getting current user profile information
-const getUserProfile = async (req, res) => {
-  const user = await User.findById(req.user.userId);
-  if (user) {
-    return res.status(200).json({
-      user: {
-        _id: req.user.userId,
-        role: user.role,
-        email: user.email,
-        created_date: user.created_date,
-        photo: user.photo,
-      },
-    });
-  }
-  return res
-    .status(400)
-    .json({ message: "Can't get user profile information!" });
 };
 
 // change user's password
@@ -132,7 +112,6 @@ module.exports = {
   registerUser,
   loginUser,
   forgotUserPass,
-  getUserProfile,
   changePass,
   deleteUser,
 };

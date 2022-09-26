@@ -1,35 +1,28 @@
 /* eslint-disable consistent-return */
 /* eslint-disable no-underscore-dangle */
-const { Truck, truckJoiSchema } = require('../models/Truck');
-const { getTruckPayload, getTruckDimansions } = require('../service/serviseFunctions');
+const { Board } = require('../models/Board');
 
-// add truck for driver
-const addTruck = async (req, res) => {
-  const { userId, role } = req.user;
-  const { type } = req.body;
-  // joi data validation
-  await truckJoiSchema.validateAsync({ type });
+// add board
+const addBoard = async (req, res) => {
+  const { userId } = req.user;
+  const { name, description } = req.body;
 
-  if (role === 'DRIVER') {
-    const truck = new Truck({
-      created_by: userId,
-      type,
-      payload: getTruckPayload(type),
-      dimensions: getTruckDimansions(type),
-    });
-    truck.save().then(() => {
-      res.status(200).json({ message: 'Truck created successfully' });
-    });
-  } else {
-    res.status(400).json({ message: "SHIPPER can't add trucks!" });
-  }
+  const board = new Board({
+    userId,
+    name,
+    description,
+  });
+
+  board.save().then(() => {
+    res.status(200).json({ message: 'Board created successfully' });
+  });
 };
 
 // get driver's trucks
 const getTrucks = (req, res) => {
   const { userId, role } = req.user;
   if (role === 'DRIVER') {
-    Truck.find({ created_by: userId }).then((list) => {
+    Board.find({ created_by: userId }).then((list) => {
       if (list.length > 0) {
         res.status(200).json({ trucks: list });
       } else {
@@ -49,8 +42,8 @@ const getTrucks = (req, res) => {
 const assignTruck = async (req, res) => {
   const truckId = req.params.id;
   const { userId, role } = req.user;
-  const assignedTruck = await Truck.findOne({ assigned_to: userId });
-  const truck = await Truck.findOne({ created_by: userId, _id: truckId });
+  const assignedTruck = await Board.findOne({ assigned_to: userId });
+  const truck = await Board.findOne({ created_by: userId, _id: truckId });
   if (!assignedTruck) {
     if (truck && role === 'DRIVER') {
       truck.assigned_to = userId;
@@ -83,9 +76,9 @@ const assignTruck = async (req, res) => {
 const deleteTruck = async (req, res) => {
   const truckId = req.params.id;
   const { userId, role } = req.user;
-  const truck = await Truck.findOne({ created_by: userId, _id: truckId });
+  const truck = await Board.findOne({ created_by: userId, _id: truckId });
   if (truck && userId !== truck.assigned_to && role === 'DRIVER') {
-    await Truck.findByIdAndDelete(truckId);
+    await Board.findByIdAndDelete(truckId);
     res.status(200).json({ message: 'Truck deleted successfully' });
   } else {
     res
@@ -102,7 +95,7 @@ const getTruckById = (req, res) => {
   const truckId = req.params.id;
   const { userId, role } = req.user;
   if (role === 'DRIVER') {
-    Truck.findOne({ created_by: userId, _id: truckId }).then((truck) => {
+    Board.findOne({ created_by: userId, _id: truckId }).then((truck) => {
       if (truck) {
         res.status(200).json({ truck });
       } else {
@@ -123,10 +116,8 @@ const updateTruck = async (req, res) => {
   const truckId = req.params.id;
   const { userId, role } = req.user;
   const { type } = req.body;
-  // joi data validation
-  await truckJoiSchema.validateAsync({ type });
 
-  const truck = await Truck.findOne({ created_by: userId, _id: truckId });
+  const truck = await Board.findOne({ created_by: userId, _id: truckId });
   if (truck && role === 'DRIVER') {
     if (userId !== truck.assigned_to) {
       truck.type = type;
@@ -146,7 +137,7 @@ const updateTruck = async (req, res) => {
 };
 
 module.exports = {
-  addTruck,
+  addBoard,
   getTrucks,
   assignTruck,
   deleteTruck,

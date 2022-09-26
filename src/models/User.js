@@ -15,21 +15,9 @@ const userSchema = mongoose.Schema({
     require: true,
     unique: true,
   },
-  role: {
-    type: String,
-    require: true,
-  },
-  created_date: {
-    type: Date,
-    default: Date.now,
-  },
   password: {
     type: String,
     require: true,
-  },
-  photo: {
-    type: String,
-    default: null,
   },
 });
 
