@@ -1,5 +1,4 @@
-/* eslint-disable consistent-return */
-/* eslint-disable no-underscore-dangle */
+const uuid = require('uuid');
 const { Board } = require('../models/Board');
 
 // add board
@@ -26,9 +25,7 @@ const getBoards = (req, res) => {
     if (list.length > 0) {
       res.status(200).json({ boards: list });
     } else {
-      res
-        .status(400)
-        .json({ message: 'No Boards created for this user!' });
+      res.status(400).json({ message: 'No Boards created for this user!' });
     }
   });
 };
@@ -49,9 +46,27 @@ const updateBoard = async (req, res) => {
   res.status(200).json({ message: 'Board name changed successfully' });
 };
 
+// add task to board
+const addTask = async (req, res) => {
+  const boardId = req.params.id;
+  const { name, status } = req.body;
+  const board = await Board.findById(boardId);
+  const newTask = {
+    id: uuid.v4(),
+    name,
+    status,
+    createdDate: new Date(),
+    comments: [],
+  };
+  board.tasks = [...board.tasks, newTask];
+  board.save();
+  res.status(200).json(board);
+};
+
 module.exports = {
   addBoard,
   getBoards,
   deleteBoard,
   updateBoard,
+  addTask,
 };
