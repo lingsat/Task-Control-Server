@@ -13,7 +13,6 @@ const addBoard = async (req, res) => {
   });
 
   board.save().then(() => {
-    // res.status(200).json({ message: 'Board created successfully' });
     res.status(200).json(board);
   });
 };
@@ -25,7 +24,7 @@ const getBoards = (req, res) => {
     if (list.length > 0) {
       res.status(200).json({ boards: list });
     } else {
-      res.status(400).json({ message: 'No Boards created for this user!' });
+      res.status(200).json({ boards: [] });
     }
   });
 };
@@ -53,6 +52,7 @@ const addTask = async (req, res) => {
   const board = await Board.findById(boardId);
   const newTask = {
     id: uuid.v4(),
+    boardId,
     name,
     status,
     createdDate: new Date(),
@@ -63,10 +63,40 @@ const addTask = async (req, res) => {
   res.status(200).json(board);
 };
 
+// add task to board
+const deleteTask = async (req, res) => {
+  const boardId = req.params.id;
+  const { taskId } = req.body;
+  const board = await Board.findById(boardId);
+  const filteredTasks = board.tasks.filter((task) => task.id !== taskId);
+  board.tasks = filteredTasks;
+  board.save();
+  res.status(200).json(board);
+};
+
+// edit task
+const editTask = async (req, res) => {
+  const boardId = req.params.id;
+  const { taskId } = req.body;
+  const board = await Board.findById(boardId);
+  console.log(req.body.name);
+  const modTasks = board.tasks.map((task) => {
+    if (task.id === taskId) {
+      return { ...task, name: req.body.name };
+    }
+    return task;
+  });
+  board.tasks = modTasks;
+  board.save();
+  res.status(200).json(board);
+};
+
 module.exports = {
   addBoard,
   getBoards,
   deleteBoard,
   updateBoard,
   addTask,
+  deleteTask,
+  editTask,
 };
