@@ -1,4 +1,3 @@
-const fs = require('fs');
 const express = require('express');
 const cors = require('cors');
 const morgan = require('morgan');
@@ -9,16 +8,12 @@ const bodyParser = require('body-parser');
 // import routers
 const { userRouter } = require('./src/routers/userRouter');
 const { boardRouter } = require('./src/routers/boardRouter');
-const { loadRouter } = require('./src/routers/loadRouter');
 
 // create app server and port
 const app = express();
 const PORT = process.env.PORT || 8080;
 
 // connection to database
-// mongoose.connect(
-//   'mongodb+srv://lingsat:mypassword@cluster0.roomuyf.mongodb.net/deliveryservice?retryWrites=true&w=majority',
-// );
 mongoose.connect(
   'mongodb+srv://lingsat:2PN9eWjW0gNCVaTX@cluster0.0tzjfke.mongodb.net/taskcontrol?retryWrites=true&w=majority',
 );
@@ -48,13 +43,9 @@ app.use('/', express.static(__dirname));
 
 app.use('/api/auth', userRouter);
 app.use('/api/board', boardRouter);
-app.use('/api/loads', loadRouter);
 
 const start = async () => {
   try {
-    if (!fs.existsSync('photos')) {
-      fs.mkdirSync('photos');
-    }
     app.listen(PORT);
   } catch (err) {
     console.error(`Error on server startup: ${err.message}`);

@@ -63,7 +63,7 @@ const addTask = async (req, res) => {
   res.status(200).json(board);
 };
 
-// add task to board
+// delete task from board
 const deleteTask = async (req, res) => {
   const boardId = req.params.id;
   const { taskId } = req.body;
@@ -77,18 +77,36 @@ const deleteTask = async (req, res) => {
 // edit task
 const editTask = async (req, res) => {
   const boardId = req.params.id;
-  const { taskId } = req.body;
+  const { name, taskId, status } = req.body;
   const board = await Board.findById(boardId);
-  console.log(req.body.name);
   const modTasks = board.tasks.map((task) => {
     if (task.id === taskId) {
-      return { ...task, name: req.body.name };
+      return { ...task, name, status };
     }
     return task;
   });
   board.tasks = modTasks;
   board.save();
   res.status(200).json(board);
+};
+
+// changee task status
+const changeTaskStatus = async (req, res) => {
+  const boardId = req.params.id;
+  const { status, taskId } = req.body;
+  const board = await Board.findById(boardId);
+  let tempTask;
+  const tempTasksArr = [];
+  board.tasks.forEach((task) => {
+    if (task.id === taskId) {
+      tempTask = { ...task, status };
+    } else {
+      tempTasksArr.push(task);
+    }
+  });
+  board.tasks = [...tempTasksArr, tempTask];
+  board.save();
+  res.status(200).json({ message: 'Status changed successfully!' });
 };
 
 module.exports = {
@@ -99,4 +117,5 @@ module.exports = {
   addTask,
   deleteTask,
   editTask,
+  changeTaskStatus,
 };

@@ -8,6 +8,7 @@ const {
   addTask,
   deleteTask,
   editTask,
+  changeTaskStatus,
 } = require('../controllers/boardController');
 const { asyncWrapper } = require('../service/serviseFunctions');
 
@@ -20,6 +21,7 @@ router.put('/:id', authMiddleware, asyncWrapper(updateBoard));
 
 router.put('/task/:id', authMiddleware, asyncWrapper(addTask));
 router.put('/task/edit/:id', authMiddleware, asyncWrapper(editTask));
+router.put('/task/status/:id', authMiddleware, asyncWrapper(changeTaskStatus));
 router.delete('/task/:id', authMiddleware, deleteTask);
 
 module.exports = { boardRouter: router };
