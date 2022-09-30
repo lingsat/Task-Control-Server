@@ -59,6 +59,9 @@ const addTask = async (req, res) => {
     comments: [],
   };
   board.tasks = [...board.tasks, newTask];
+  board.todoCount = board.tasks.filter((task) => task.status === 'todo').length;
+  board.progressCount = board.tasks.filter((task) => task.status === 'progress').length;
+  board.doneCount = board.tasks.filter((task) => task.status === 'done').length;
   board.save();
   res.status(200).json(board);
 };
@@ -70,6 +73,9 @@ const deleteTask = async (req, res) => {
   const board = await Board.findById(boardId);
   const filteredTasks = board.tasks.filter((task) => task.id !== taskId);
   board.tasks = filteredTasks;
+  board.todoCount = board.tasks.filter((task) => task.status === 'todo').length;
+  board.progressCount = board.tasks.filter((task) => task.status === 'progress').length;
+  board.doneCount = board.tasks.filter((task) => task.status === 'done').length;
   board.save();
   res.status(200).json(board);
 };
@@ -77,15 +83,18 @@ const deleteTask = async (req, res) => {
 // edit task
 const editTask = async (req, res) => {
   const boardId = req.params.id;
-  const { name, taskId, status } = req.body;
+  const { name, taskId } = req.body;
   const board = await Board.findById(boardId);
   const modTasks = board.tasks.map((task) => {
     if (task.id === taskId) {
-      return { ...task, name, status };
+      return { ...task, name };
     }
     return task;
   });
   board.tasks = modTasks;
+  board.todoCount = board.tasks.filter((task) => task.status === 'todo').length;
+  board.progressCount = board.tasks.filter((task) => task.status === 'progress').length;
+  board.doneCount = board.tasks.filter((task) => task.status === 'done').length;
   board.save();
   res.status(200).json(board);
 };
@@ -105,6 +114,9 @@ const changeTaskStatus = async (req, res) => {
     }
   });
   board.tasks = [...tempTasksArr, tempTask];
+  board.todoCount = board.tasks.filter((task) => task.status === 'todo').length;
+  board.progressCount = board.tasks.filter((task) => task.status === 'progress').length;
+  board.doneCount = board.tasks.filter((task) => task.status === 'done').length;
   board.save();
   res.status(200).json({ message: 'Status changed successfully!' });
 };

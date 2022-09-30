@@ -18,6 +18,18 @@ const boardSchema = mongoose.Schema({
     type: Array,
     default: [],
   },
+  todoCount: {
+    type: Number,
+    default: 0,
+  },
+  progressCount: {
+    type: Number,
+    default: 0,
+  },
+  doneCount: {
+    type: Number,
+    default: 0,
+  },
 });
 
 const Board = mongoose.model('board', boardSchema);
