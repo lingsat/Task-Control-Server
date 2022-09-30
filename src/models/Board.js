@@ -30,6 +30,24 @@ const boardSchema = mongoose.Schema({
     type: Number,
     default: 0,
   },
+  archive: {
+    type: Array,
+    default: [],
+  },
+  colColors: {
+    todo: {
+      type: String,
+      default: '#E7EAEF',
+    },
+    progress: {
+      type: String,
+      default: '#E7EAEF',
+    },
+    done: {
+      type: String,
+      default: '#E7EAEF',
+    },
+  },
 });
 
 const Board = mongoose.model('board', boardSchema);

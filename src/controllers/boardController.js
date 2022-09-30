@@ -45,6 +45,16 @@ const updateBoard = async (req, res) => {
   res.status(200).json({ message: 'Board name changed successfully' });
 };
 
+// set board column color
+const setBoardColumnColor = async (req, res) => {
+  const boardId = req.params.id;
+  const { newColor, columnStatus } = req.body;
+  const board = await Board.findById(boardId);
+  board.colColors[columnStatus] = newColor;
+  board.save();
+  res.status(200).json(board);
+};
+
 // add task to board
 const addTask = async (req, res) => {
   const boardId = req.params.id;
@@ -121,13 +131,38 @@ const changeTaskStatus = async (req, res) => {
   res.status(200).json({ message: 'Status changed successfully!' });
 };
 
+// archive task
+const archiveTask = async (req, res) => {
+  const boardId = req.params.id;
+  const { taskId } = req.body;
+  const board = await Board.findById(boardId);
+  let archivedTask;
+  const tempTasksArr = [];
+  board.tasks.forEach((task) => {
+    if (task.id === taskId) {
+      archivedTask = task;
+    } else {
+      tempTasksArr.push(task);
+    }
+  });
+  board.tasks = tempTasksArr;
+  board.archive.push(archivedTask);
+  board.todoCount = board.tasks.filter((task) => task.status === 'todo').length;
+  board.progressCount = board.tasks.filter((task) => task.status === 'progress').length;
+  board.doneCount = board.tasks.filter((task) => task.status === 'done').length;
+  board.save();
+  res.status(200).json(board);
+};
+
 module.exports = {
   addBoard,
   getBoards,
   deleteBoard,
   updateBoard,
+  setBoardColumnColor,
   addTask,
   deleteTask,
   editTask,
   changeTaskStatus,
+  archiveTask,
 };
