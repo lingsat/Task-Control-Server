@@ -34,20 +34,24 @@ const registerUser = async (req, res, next) => {
 const loginUser = async (req, res) => {
   const { email, password } = req.body;
   const user = await User.findOne({ email });
-  const isPassCorrect = await bcrypt.compare(
-    String(password),
-    String(user.password),
-  );
-  if (user && isPassCorrect) {
-    const payload = { email: user.email, userId: user.id };
-    const jwtToken = jwt.sign(payload, process.env.SECRET_KEY);
-    return res.json({
-      jwt_token: jwtToken,
-      email: user.email,
-      userId: user.id,
-    });
+  try {
+    const isPassCorrect = await bcrypt.compare(
+      String(password),
+      String(user.password),
+    );
+    if (user && isPassCorrect) {
+      const payload = { email: user.email, userId: user.id };
+      const jwtToken = jwt.sign(payload, process.env.SECRET_KEY);
+      return res.json({
+        jwt_token: jwtToken,
+        email: user.email,
+        userId: user.id,
+      });
+    }
+    return res.status(400).json({ message: 'Wrong Password!' });
+  } catch (error) {
+    return res.status(400).json({ message: 'No user found' });
   }
-  return res.status(400).json({ message: 'Not authorized!' });
 };
 
 module.exports = {
