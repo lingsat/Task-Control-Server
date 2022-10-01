@@ -7,27 +7,28 @@ const { User } = require('../models/User');
 sendgrid.setApiKey(process.env.SENDGRID_API_KEY);
 
 // registration
-const registerUser = async (req, res, next) => {
-  const { email, password } = req.body;
+const registerUser = async (req, res) => {
+  const { login, email, password } = req.body;
   const isUserExists = await User.exists({ email });
   if (!isUserExists) {
     const user = new User({
+      login,
       email,
       password: await bcrypt.hash(password, 10),
     });
-    user
-      .save()
-      .then(() => {
-        res.status(200).json({ message: 'Profile created successfully' });
-      })
-      .catch((err) => {
-        next(err);
-      });
-  } else {
-    res
-      .status(400)
-      .json({ message: `User with email ${email} already exists!` });
+    user.save();
+    const payload = { email: user.email, userId: user.id };
+    const jwtToken = jwt.sign(payload, process.env.SECRET_KEY);
+    return res.json({
+      jwt_token: jwtToken,
+      email: user.email,
+      userId: user.id,
+      login: user.login,
+    });
   }
+  return res
+    .status(400)
+    .json({ message: `User with email ${email} already exists!` });
 };
 
 // login
@@ -46,6 +47,7 @@ const loginUser = async (req, res) => {
         jwt_token: jwtToken,
         email: user.email,
         userId: user.id,
+        login: user.login,
       });
     }
     return res.status(400).json({ message: 'Wrong Password!' });
