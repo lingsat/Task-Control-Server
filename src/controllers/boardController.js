@@ -67,10 +67,13 @@ const addTask = async (req, res) => {
     status,
     createdDate: new Date(),
     comments: [],
+    commentsCounter: 0,
   };
   board.tasks = [...board.tasks, newTask];
   board.todoCount = board.tasks.filter((task) => task.status === 'todo').length;
-  board.progressCount = board.tasks.filter((task) => task.status === 'progress').length;
+  board.progressCount = board.tasks.filter(
+    (task) => task.status === 'progress',
+  ).length;
   board.doneCount = board.tasks.filter((task) => task.status === 'done').length;
   board.save();
   res.status(200).json(board);
@@ -84,7 +87,9 @@ const deleteTask = async (req, res) => {
   const filteredTasks = board.tasks.filter((task) => task.id !== taskId);
   board.tasks = filteredTasks;
   board.todoCount = board.tasks.filter((task) => task.status === 'todo').length;
-  board.progressCount = board.tasks.filter((task) => task.status === 'progress').length;
+  board.progressCount = board.tasks.filter(
+    (task) => task.status === 'progress',
+  ).length;
   board.doneCount = board.tasks.filter((task) => task.status === 'done').length;
   board.save();
   res.status(200).json(board);
@@ -103,13 +108,15 @@ const editTask = async (req, res) => {
   });
   board.tasks = modTasks;
   board.todoCount = board.tasks.filter((task) => task.status === 'todo').length;
-  board.progressCount = board.tasks.filter((task) => task.status === 'progress').length;
+  board.progressCount = board.tasks.filter(
+    (task) => task.status === 'progress',
+  ).length;
   board.doneCount = board.tasks.filter((task) => task.status === 'done').length;
   board.save();
   res.status(200).json(board);
 };
 
-// changee task status
+// change task status
 const changeTaskStatus = async (req, res) => {
   const boardId = req.params.id;
   const { status, taskId } = req.body;
@@ -125,7 +132,9 @@ const changeTaskStatus = async (req, res) => {
   });
   board.tasks = [...tempTasksArr, tempTask];
   board.todoCount = board.tasks.filter((task) => task.status === 'todo').length;
-  board.progressCount = board.tasks.filter((task) => task.status === 'progress').length;
+  board.progressCount = board.tasks.filter(
+    (task) => task.status === 'progress',
+  ).length;
   board.doneCount = board.tasks.filter((task) => task.status === 'done').length;
   board.save();
   res.status(200).json({ message: 'Status changed successfully!' });
@@ -148,10 +157,50 @@ const archiveTask = async (req, res) => {
   board.tasks = tempTasksArr;
   board.archive.push(archivedTask);
   board.todoCount = board.tasks.filter((task) => task.status === 'todo').length;
-  board.progressCount = board.tasks.filter((task) => task.status === 'progress').length;
+  board.progressCount = board.tasks.filter(
+    (task) => task.status === 'progress',
+  ).length;
   board.doneCount = board.tasks.filter((task) => task.status === 'done').length;
   board.save();
   res.status(200).json(board);
+};
+
+// add task comment
+const addTaskComment = async (req, res) => {
+  const boardId = req.params.id;
+  const { comment, taskId } = req.body;
+  const board = await Board.findById(boardId);
+  const modTasks = board.tasks.map((task) => {
+    if (task.id === taskId) {
+      const tempTask = { ...task };
+      tempTask.comments.push(comment);
+      tempTask.commentsCounter = tempTask.comments.length;
+      return tempTask;
+    }
+    return task;
+  });
+  board.tasks = modTasks;
+  board.save();
+  res.status(200).json({ message: 'Comment added successfully!' });
+};
+
+// delete task comment
+const deleteTaskComment = async (req, res) => {
+  const boardId = req.params.id;
+  const { commentIndex, taskId } = req.body;
+  const board = await Board.findById(boardId);
+  const modTasks = board.tasks.map((task) => {
+    if (task.id === taskId) {
+      const tempTask = { ...task };
+      tempTask.comments.splice(commentIndex, 1);
+      tempTask.commentsCounter = tempTask.comments.length;
+      return tempTask;
+    }
+    return task;
+  });
+  board.tasks = modTasks;
+  board.save();
+  res.status(200).json({ message: 'Comment deleted successfully!' });
 };
 
 module.exports = {
@@ -165,4 +214,6 @@ module.exports = {
   editTask,
   changeTaskStatus,
   archiveTask,
+  addTaskComment,
+  deleteTaskComment,
 };

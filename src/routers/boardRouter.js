@@ -11,6 +11,8 @@ const {
   editTask,
   changeTaskStatus,
   archiveTask,
+  addTaskComment,
+  deleteTaskComment,
 } = require('../controllers/boardController');
 const { asyncWrapper } = require('../service/serviseFunctions');
 
@@ -27,5 +29,7 @@ router.put('/task/edit/:id', authMiddleware, asyncWrapper(editTask));
 router.put('/task/status/:id', authMiddleware, asyncWrapper(changeTaskStatus));
 router.delete('/task/:id', authMiddleware, deleteTask);
 router.delete('/task/archive/:id', authMiddleware, archiveTask);
+router.put('/task/comment/:id', authMiddleware, asyncWrapper(addTaskComment));
+router.delete('/task/comment/:id', authMiddleware, asyncWrapper(deleteTaskComment));
 
 module.exports = { boardRouter: router };
