@@ -11,6 +11,7 @@ const {
   editTask,
   changeTaskStatus,
   archiveTask,
+  clearArchive,
   addTaskComment,
   deleteTaskComment,
 } = require('../controllers/boardController');
@@ -29,6 +30,7 @@ router.put('/task/edit/:id', authMiddleware, asyncWrapper(editTask));
 router.put('/task/status/:id', authMiddleware, asyncWrapper(changeTaskStatus));
 router.delete('/task/:id', authMiddleware, deleteTask);
 router.delete('/task/archive/:id', authMiddleware, archiveTask);
+router.put('/archive/clear', authMiddleware, asyncWrapper(clearArchive));
 router.put('/task/comment/:id', authMiddleware, asyncWrapper(addTaskComment));
 router.delete('/task/comment/:id', authMiddleware, asyncWrapper(deleteTaskComment));
 

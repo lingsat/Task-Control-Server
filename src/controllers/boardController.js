@@ -165,6 +165,13 @@ const archiveTask = async (req, res) => {
   res.status(200).json(board);
 };
 
+// clear archive
+const clearArchive = async (req, res) => {
+  const { userId } = req.user;
+  await Board.updateMany({ userId }, { $set: { archive: [] } });
+  res.status(200).json('Archive deleted Successfully!');
+};
+
 // add task comment
 const addTaskComment = async (req, res) => {
   const boardId = req.params.id;
@@ -214,6 +221,7 @@ module.exports = {
   editTask,
   changeTaskStatus,
   archiveTask,
+  clearArchive,
   addTaskComment,
   deleteTaskComment,
 };
