@@ -22,9 +22,9 @@ const getBoards = (req, res) => {
   const { userId } = req.user;
   Board.find({ userId }).then((list) => {
     if (list.length > 0) {
-      res.status(200).json({ boards: list });
+      res.status(200).json(list);
     } else {
-      res.status(200).json({ boards: [] });
+      res.status(200).json([]);
     }
   });
 };
@@ -137,7 +137,7 @@ const changeTaskStatus = async (req, res) => {
   ).length;
   board.doneCount = board.tasks.filter((task) => task.status === 'done').length;
   board.save();
-  res.status(200).json({ message: 'Status changed successfully!' });
+  res.status(200).json(board);
 };
 
 // archive task
