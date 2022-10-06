@@ -98,11 +98,11 @@ const deleteTask = async (req, res) => {
 // edit task
 const editTask = async (req, res) => {
   const boardId = req.params.id;
-  const { name, taskId } = req.body;
+  const { name, status, taskId } = req.body;
   const board = await Board.findById(boardId);
   const modTasks = board.tasks.map((task) => {
     if (task.id === taskId) {
-      return { ...task, name };
+      return { ...task, name, status };
     }
     return task;
   });
