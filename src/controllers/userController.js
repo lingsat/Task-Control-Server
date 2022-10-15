@@ -28,7 +28,7 @@ const registerUser = async (req, res) => {
   }
   return res
     .status(400)
-    .json({ message: `User with email ${email} already exists!` });
+    .json(`User with email ${email} already exists!`);
 };
 
 // login
@@ -50,9 +50,9 @@ const loginUser = async (req, res) => {
         login: user.login,
       });
     }
-    return res.status(400).json({ message: 'Wrong Password!' });
+    return res.status(400).json('Wrong Password!');
   } catch (error) {
-    return res.status(400).json({ message: 'No user found' });
+    return res.status(400).json('No user found');
   }
 };
 
