@@ -1,4 +1,3 @@
-const uuid = require('uuid');
 const { Board } = require('../models/Board');
 
 // add board
@@ -52,20 +51,25 @@ const setBoardColumnColor = async (req, res) => {
   const board = await Board.findById(boardId);
   board.colColors[columnStatus] = newColor;
   board.save();
-  res.status(200).json(board);
+  res.status(200).json({ message: 'Color changed successfully!' });
 };
 
 // add task to board
 const addTask = async (req, res) => {
   const boardId = req.params.id;
-  const { name, status } = req.body;
+  const {
+    name,
+    status,
+    taskId,
+    createdDate,
+  } = req.body;
   const board = await Board.findById(boardId);
   const newTask = {
-    id: uuid.v4(),
+    id: taskId,
     boardId,
     name,
     status,
-    createdDate: new Date(),
+    createdDate,
     comments: [],
     commentsCounter: 0,
   };
@@ -76,7 +80,7 @@ const addTask = async (req, res) => {
   ).length;
   board.doneCount = board.tasks.filter((task) => task.status === 'done').length;
   board.save();
-  res.status(200).json(board);
+  res.status(200).json({ message: 'Task added successfully!' });
 };
 
 // delete task from board
@@ -92,7 +96,7 @@ const deleteTask = async (req, res) => {
   ).length;
   board.doneCount = board.tasks.filter((task) => task.status === 'done').length;
   board.save();
-  res.status(200).json(board);
+  res.status(200).json({ message: 'Task deleted successfully!' });
 };
 
 // edit task
@@ -113,7 +117,7 @@ const editTask = async (req, res) => {
   ).length;
   board.doneCount = board.tasks.filter((task) => task.status === 'done').length;
   board.save();
-  res.status(200).json(board);
+  res.status(200).json({ message: 'Task edited successfully!' });
 };
 
 // change task status
@@ -162,7 +166,7 @@ const archiveTask = async (req, res) => {
   ).length;
   board.doneCount = board.tasks.filter((task) => task.status === 'done').length;
   board.save();
-  res.status(200).json(board);
+  res.status(200).json({ message: 'Task archived successfully!' });
 };
 
 // clear archive
