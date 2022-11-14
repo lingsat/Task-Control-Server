@@ -39,10 +39,12 @@ app.use((req, res, next) => {
 });
 
 // routers
-app.use('/', express.static(__dirname));
+app.get('/', (req, res) => res.json({ message: 'Hello World' }));
 
 app.use('/api/auth', userRouter);
 app.use('/api/board', boardRouter);
+
+// app.use('/', express.static(__dirname));
 
 const start = async () => {
   try {
